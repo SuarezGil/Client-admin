@@ -1,6 +1,6 @@
 
 
-export const ForgotPasswordForm = (onSwitch) => {
+export const ForgotPasswordForm = ({onSwitch}) => {
   return (
     <form className="space-y-5">
       <div>
