@@ -1,19 +1,32 @@
-
+import { useForm } from "react-hook-form"
 
 export const LoginForm = ({ onForgot }) => {
+  
+  const {register, handleSubmit, formState: {errors}} = useForm()
+  
+  const onSubmit = (data) => {
+    console.log(data)
+    //Mandar los datos albackend para iniciar sesion
+  }
+  
+  
+  
+  
+  
   return (
     
-    <form action="" className="space-y-5">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         <div>
             <label htmlFor="emailOrUsername" className="block text-sm font-medium text-gray-700">Correo Electrónico o Nombre de Usuario
 
             </label>
             <input 
             id="emailOrUsername"
-            type="text"
+            type="email"
             placeholder="correo@ejemplo.com o usuario" 
-            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"/>
-            
+            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+          {...register("emailOrUsername", {required: "El correo o nombre de usuario es obligatorio"})}/>
+              {errors.emailOrUsername && <p className="text-red-500 text-sm mt-1">{errors.emailOrUsername.message}</p>}
             </div>
             <div>
               <label 
@@ -25,7 +38,11 @@ export const LoginForm = ({ onForgot }) => {
               id="password"
               type="password"
               placeholder="********"
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"/>
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              {...register("password", {required: "La contraseña es obligatoria"})}
+              />
+              {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>} 
+            
             </div>
 
             <button 
