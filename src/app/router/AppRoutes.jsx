@@ -6,11 +6,10 @@ import { Users } from "../../features/users/components/Users.jsx"
 export const AppRoutes = () => {
     return (
         <Routes>
-            <Route path="/" element={<AuthPage/>} />
-            <Route path="/dashboard" element={<DashboardPage/>} >
-                <Route path="users" element={<Users/>} />
+            <Route path="/" element={<AuthPage />} />
+            <Route path="/dashboard" element={<DashboardPage />} >
+                <Route path="users" element={<Users />}/>
             </Route>
         </Routes>
-
     )
 }
