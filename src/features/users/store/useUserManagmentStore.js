@@ -2,6 +2,7 @@ import { create } from "zustand"
 import * as authApi from "../../../shared/api/auth.js"
 
 const getAllUsers = authApi.getAllUsers;
+const updateUserRoleRequest = authApi.updateUserRole;
 
 export const useUserManagmentStore = create((set, get) => ({
     users: [],
@@ -11,7 +12,40 @@ export const useUserManagmentStore = create((set, get) => ({
 
     setFilters: (filters) => set({ filters }),
 
-    setUsers: (users) => set ({ users }),
+    setUsers: (users) => set({ users }),
+
+    updateUserRole: async (userId, newRole) => {
+        set({ loading: true, error: null });
+        try {
+            if (typeof updateUserRoleRequest !== "function") {
+                throw new Error("Función updateUserRole no disponible");
+            }
+            const { data: updateUser } = await updateUserRoleRequest(
+                userId,
+                newRole
+            );
+
+            const users = get().users.map((u) =>
+                u.id === updateUser.id ? { ...u, role: updateUser.role } : u
+            );
+            set({ users, loading: false });
+
+            return {
+                success: true,
+                user: updateUser
+            };
+
+    }catch (err) {
+            set({ error: err.response?.data?.message || "Error al actualizar el rol", loading: false })
+
+            return {
+            success: false,
+            error: err.response?.data?.message || "Error al actualizar el rol"
+            }
+        }
+    },
+
+
 
     fetchUsers: async (apiFn = getAllUsers, options = {}) => {
 

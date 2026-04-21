@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Spinner } from "../../../shared/components/layaout/Spinner.jsx";
 import defaultAvatarImg from "../../../assets/img/avatarDefault.png";
 
@@ -5,9 +6,15 @@ export const UserDetailModal = ({
     isOpen,
     onClose,
     user,
+    currentUserId,
+    onSaveRole,
     loading,
 }) => {
+    
+
     if (!isOpen || !user) return null;
+    const [role, setRole] = useState(user?.role || "USER_ROLE")
+
 
     const avatarSrc = (() => {
         const value = user?.profilePicture?.trim();
@@ -23,6 +30,16 @@ export const UserDetailModal = ({
 
         return `${cloudinaryBase}${value.replace(/^\/+/, "")}`;
     })();
+
+        const isCurrentUser =currentUserId === user.id;
+        const hasChanges = role !== user.role;
+
+        const handleSave = async() => {
+            if (!hasChanges || isCurrentUser) {
+                onClose(); return;
+            }
+            await onSaveRole(user, role)
+        }
 
     return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50 px-3 sm:px-4">
@@ -48,7 +65,7 @@ export const UserDetailModal = ({
                             alt={user.username}
                             className="w-16 h-16 rounded-full object-cover border"
                             onError={(e) => {
-                                e.currentTarget.onError = null;
+                                e.currentTarget.onerror = null;
                                 e.currentTarget.src = defaultAvatarImg;
                             }}
                         />
@@ -85,10 +102,18 @@ export const UserDetailModal = ({
                         </label>
                         <select
                             className="w-full px-3 py-2 rounded-lg border-2 border-gray-300 bg-gray-50 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
+                            value={role}
+                            onChange={(e) => setRole(e.target.value)}
+                            disabled={isCurrentUser}
                         >
                             <option value="USER_ROLE">USER_ROLE</option>
                             <option value="ADMIN_ROLE">ADMIN_ROLE</option>
                         </select>
+                        {isCurrentUser && (
+                            <p className="text-xs text-red-500 mt-1">
+                                No puedes cambiar tu propio rol
+                            </p>
+                        )}
                     </div>
                 </div>
 
@@ -102,6 +127,8 @@ export const UserDetailModal = ({
                     </button>
                     <button
                         type="button"
+                        onClick={handleSave}
+                        disabled={loading|| !hasChanges || isCurrentUser  }
                         className="w-full sm:w-auto px-5 py-2 rounded-lg text-white font-medium transition shadow"
                         style={{
                             background:
