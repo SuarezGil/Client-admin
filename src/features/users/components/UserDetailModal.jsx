@@ -38,7 +38,7 @@ export const UserDetailModal = ({
             if (!hasChanges || isCurrentUser) {
                 onClose(); return;
             }
-            await onSaveRole(user, role)
+            await onSaveRole(user.id, role)
         }
 
     return (
