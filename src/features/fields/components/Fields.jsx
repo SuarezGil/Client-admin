@@ -4,12 +4,15 @@ import { Spinner } from "../../../shared/components/layaout/Spinner.jsx";
 import { useEffect as useToastEffect } from "react";
 import { showError } from "../../../shared/utils/toast.js";
 import { FieldModal } from "./FieldModal.jsx";
+import { useUIStore } from "../../../shared/components/ui/store/uiStore.js";
 
 
 export const Fields = () => {
 
-    const { fields, loading, error, getFields } = useFieldStore();
+    const { fields, loading, error, getFields, deleteField } = useFieldStore();
     const [openModal, setOpenModal] = useState(false);
+    const [selectedField, setSelectedField] = useState(null);
+    const { openConfirm } = useUIStore();
 
     useEffect(() => {
         getFields();
@@ -41,7 +44,10 @@ export const Fields = () => {
 
                 <button 
                     className="bg-main-blue px-4 py-2 rounded text-white hover:opacity-90 transition"
-                    onClick={() => setOpenModal(true)}
+                    onClick={() => {
+                        setOpenModal(true);
+                        setSelectedField(null);
+                    }}
                 >
                     + Agregar Campo
                 </button>
@@ -51,7 +57,7 @@ export const Fields = () => {
             <div className="grid sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 {fields.map((field) => (
                     <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 hover:scale-[1.02]">
-
+                        
                         <div className="w-full h-52 bg-gray-100 flex items-center justify-center">
                             <img
                                 src={field.photo}
@@ -80,11 +86,26 @@ export const Fields = () => {
                             </p>
 
                             <div className="flex gap-3 mt-5">
-                                <button className="flex-1 py-2 rounded-lg bg-main-blue text-white font-medium hover:opacity-90 transition">
+                                <button className="flex-1 py-2 rounded-lg bg-main-blue text-white font-medium hover:opacity-90 transition"
+                                onClick={() => {
+                                    setSelectedField(field);
+                                    setOpenModal(true);
+                                }}>
                                     ✏️ Editar
                                 </button>
 
-                                <button className="flex-1 py-2 rounded-lg bg-red-600 text-white font-medium hover:bg-red-700 transition">
+                                <button className="flex-1 py-2 rounded-lg bg-red-600 text-white font-medium hover:bg-red-700 transition"
+                                onClick={() => {
+                                    openConfirm({
+                                        title: "Eliminar Campo",
+                                        message: `¿Estás seguro de que deseas eliminar el campo "${field.fieldName}"?`,
+                                        onConfirm: () => {
+                                            deleteField(field._id);
+                                        }
+                                    });
+                                }}>
+                                    
+                                    
                                     🗑️ Eliminar
                                 </button>
                             </div>
@@ -97,7 +118,11 @@ export const Fields = () => {
 
             <FieldModal 
                     isOpen={openModal}
-                    onClose={() => {setOpenModal(false)}} 
+                    onClose={() => {
+                        setOpenModal(false)
+                        setSelectedField(null)
+                    }} 
+                        field={selectedField}
                     />
         </div>
     );

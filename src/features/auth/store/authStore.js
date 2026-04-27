@@ -3,7 +3,7 @@ import { persist } from "zustand/middleware";
 import {
     login as loginRequest,
     register as registerRequest
-} from "../../../shared/api"
+} from "../../../shared/api/auth"
 
 export const useAuthStore = create(
     persist(
