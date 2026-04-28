@@ -23,5 +23,5 @@ export const updateField = async (id, data) => {
 }
 
 export const deleteField = async (id) => {
-    return await axiosAdmin.delete(`/fields/${id}/desactivate`)
+    return await axiosAdmin.put(`/fields/${id}/desactivate`)
 }

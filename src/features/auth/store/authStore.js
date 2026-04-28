@@ -4,23 +4,50 @@ import {
     login as loginRequest,
     register as registerRequest
 } from "../../../shared/api/auth"
+import { showError } from "../../../shared/utils/toast";
 
 export const useAuthStore = create(
     persist(
         (set, get) => ({
             user: null,
             token: null,
+            refreshToken: null,
             expiresAt: null,
             loading: false,
             error: null,
             isAuthenticated: false,
+            isLoadingAuth: true,
+
+            checkAuth: () => {
+                const token = get().token;
+                const role = get().user?.role;
+                const isAdmin = role === "ADMIN_ROLE";
+                if (token && !isAdmin) {
+                    set({
+                        user : null,
+                        token : null,
+                        refreshToken: null,
+                        expiresAt: null,
+                        isAuthenticated: false,
+                        error: "No tienes permisos de administrador"
+                        
+                        });
+                        return;
+                } 
+
+                set({
+                    isLoadingAuth: false,
+                    isAuthenticated: Boolean(token) && isAdmin});
+            },
+
 
             logout: () => {
                 set({
                     user: null,
                     token: null,
                     expiresAt: null,
-                    isAuthenticated: false
+                    isAuthenticated: false,
+                    isLoadingAuth: false
                 })
             },
 
@@ -47,12 +74,31 @@ export const useAuthStore = create(
 
                     const { data } = await loginRequest({ emailOrUsername, password })
                     console.log(data)
+                    const role = data.userDetails?.role;
 
+                    if (role !== "ADMIN_ROLE") {
+                        
+                            const message = "No tienes permisos de administrador";
+                        set({
+                            user : null,
+                            token : null,
+                            refreshToken: null,
+                            expiresAt: null,
+                            isAuthenticated: false,
+                            error: message,
+                            loading: false
+                        });
+                        showError(message);
+                        return { success: false, error:message };
+                    }
                     set({
                         user: data.userDetails,
                         token: data.accessToken,
+                        refreshToken: data.refreshToken,
                         expiresAt: data.expiresAt,
                         loading: false,
+                        isAuthenticated: true,
+                        isLoadingAuth: false
                     })
 
                     return { success: true }
